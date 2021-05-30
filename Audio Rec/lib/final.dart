@@ -16,6 +16,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 
 typedef _Fn = void Function();
+int count=0;
 
 class screen extends StatefulWidget {
   final double width;
@@ -77,6 +78,7 @@ class _screenState extends State<screen>
   double vheight = 200.0;
   bool showLockUi = false;
   bool shouldSend = true;
+  Offset positions =Offset(20.0, 20.0);
 
   @override
   void initState() {
@@ -475,7 +477,7 @@ class _screenState extends State<screen>
                         margin: const BubbleEdges.only(top: 4),
                         child: const Text("What's the problem?"),
                       ),
-                      Bubble(
+                      (count==0 )? Bubble(
                         style: styleMe,
                         showNip: false,
                         margin: const BubbleEdges.only(top: 4),
@@ -513,7 +515,7 @@ class _screenState extends State<screen>
                             ]),
                           ),
                         ),
-                      ),
+                      ):Container(),
                     ],
                   ),
                 ),
@@ -544,64 +546,135 @@ class _screenState extends State<screen>
               ],
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            //onPressed: getRecorderFn(),
+          floatingActionButton: Draggable(
+            feedback: FloatingActionButton(
+              onPressed: (){
+                setState(() {
+                  count++;
+                  print(count);
+                  print("shrutii");
+                });},
 
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                if (longRecording) {
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  if (longRecording) {
+                    setState(() {
+                      shouldSend = true;
+                      longRecording = false;
+                    });
+                    if (_mRecorder.isRecording) stopRecorder();
+                    _resetUi();
+                    _resetTimer();
+                  }
+                },
+
+                onLongPressStart: (_) {
+                  HapticFeedback.mediumImpact();
                   setState(() {
-                    shouldSend = true;
-                    longRecording = false;
+                    isRecording = true;
                   });
-                  if (_mRecorder.isRecording) stopRecorder();
+                  if (_mRecorder.isStopped) {
+                    record();
+                  }
+                  timerStream = stopWatchStream();
+                  timerSubscription = timerStream.listen((int newTick) {
+                    setState(() {
+                      minutesStr = ((newTick / 60) % 60)
+                          .floor()
+                          .toString()
+                          .padLeft(2, '0');
+                      secondsStr =
+                          (newTick % 60).floor().toString().padLeft(2, '0');
+                      if (secondsStr == '03') showLockUi = true;
+                    });
+                  });
+                },
+
+                onLongPressEnd: (_) {
+                  HapticFeedback.lightImpact();
+
+                  if (_mRecorder.isRecording && !longRecording) {
+                    setState(() {
+                      shouldSend = true;
+                    });
+                    stopRecorder();
+                  }
                   _resetUi();
                   _resetTimer();
-                }
-              },
+                },
 
-              onLongPressStart: (_) {
-                HapticFeedback.mediumImpact();
-                setState(() {
-                  isRecording = true;
-                });
-                if (_mRecorder.isStopped) {
-                  record();
-                }
-                timerStream = stopWatchStream();
-                timerSubscription = timerStream.listen((int newTick) {
-                  setState(() {
-                    minutesStr = ((newTick / 60) % 60)
-                        .floor()
-                        .toString()
-                        .padLeft(2, '0');
-                    secondsStr =
-                        (newTick % 60).floor().toString().padLeft(2, '0');
-                    if (secondsStr == '03') showLockUi = true;
-                  });
-                });
-              },
-
-              onLongPressEnd: (_) {
-                HapticFeedback.lightImpact();
-
-                if (_mRecorder.isRecording && !longRecording) {
-                  setState(() {
-                    shouldSend = true;
-                  });
-                  stopRecorder();
-                }
-                _resetUi();
-                _resetTimer();
-              },
-
-              child: Icon(
-                Icons.mic,
-                color: Colors.white,
+                child: Icon(
+                  Icons.mic,
+                  color: Colors.white,
+                ),
               ),
+              backgroundColor: Color(0xfffbbec5),
             ),
-            backgroundColor: Color(0xfffbbec5),
+            child: FloatingActionButton(
+              onPressed: (){
+               setState(() {
+                 count++;
+                 print(count);
+                 print("shrutii");
+                            });},
+
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  if (longRecording) {
+                    setState(() {
+                      shouldSend = true;
+                      longRecording = false;
+                    });
+                    if (_mRecorder.isRecording) stopRecorder();
+                    _resetUi();
+                    _resetTimer();
+                  }
+                },
+
+                onLongPressStart: (_) {
+                  HapticFeedback.mediumImpact();
+                  setState(() {
+                    isRecording = true;
+                  });
+                  if (_mRecorder.isStopped) {
+                    record();
+                  }
+                  timerStream = stopWatchStream();
+                  timerSubscription = timerStream.listen((int newTick) {
+                    setState(() {
+                      minutesStr = ((newTick / 60) % 60)
+                          .floor()
+                          .toString()
+                          .padLeft(2, '0');
+                      secondsStr =
+                          (newTick % 60).floor().toString().padLeft(2, '0');
+                      if (secondsStr == '03') showLockUi = true;
+                    });
+                  });
+                },
+
+                onLongPressEnd: (_) {
+                  HapticFeedback.lightImpact();
+
+                  if (_mRecorder.isRecording && !longRecording) {
+                    setState(() {
+                      shouldSend = true;
+                    });
+                    stopRecorder();
+                  }
+                  _resetUi();
+                  _resetTimer();
+                },
+
+                child: Icon(
+                  Icons.mic,
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: Color(0xfffbbec5),
+            ),
           ),
 
         ),
