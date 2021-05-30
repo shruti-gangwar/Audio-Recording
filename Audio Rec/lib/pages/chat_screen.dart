@@ -213,7 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 Align(
                     alignment: Alignment.bottomLeft,
-                    child: BottomInput2(
+                    child: BottomInput(
                       width: width,
                       height: height,
                       onAudioSend: (String path) {
@@ -233,9 +233,8 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-}
 
-getPlaybackFn() {
+  getPlaybackFn() {}
 }
 
 

@@ -2,8 +2,10 @@ import 'package:audio_recording_in_flutter/models/msg_model.dart';
 import 'package:audio_recording_in_flutter/newfile.dart';
 import 'package:audio_recording_in_flutter/pages/chat_screen.dart';
 import 'package:audio_recording_in_flutter/pages/message_screen.dart';
+import 'package:audio_recording_in_flutter/widgets/bottom_input.dart';
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_size/flutter_keyboard_size.dart';
 import 'package:flutter_sound/public/flutter_sound_player.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
@@ -11,15 +13,23 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shimmer/shimmer.dart';
 
 typedef _Fn = void Function();
 
 class screen extends StatefulWidget {
+  final double width;
+  final double height;
+  final Function(String) onAudioSend;
+  final Function() onAudioCancel;
+
+  const screen({Key key, @required this.width,@required this.height,@required this.onAudioSend,@required this.onAudioCancel}) : super(key: key);
   @override
   _screenState createState() => _screenState();
 }
 
-class _screenState extends State<screen> {
+class _screenState extends State<screen>
+    with TickerProviderStateMixin {
 
   static const styleSomebody = BubbleStyle(
     nip: BubbleNip.leftCenter,
@@ -42,10 +52,45 @@ class _screenState extends State<screen> {
   bool _mplaybackReady = false;
   final String _mPath = 'flutter_sound_example.aac';
   var msgList = [];
+  AnimationController _recordController;
+  Animation _animation;
   bool flag = true;
+  Stream<int> timerStream;
+  StreamSubscription<int> timerSubscription;
+  String minutesStr = '00';
+  String secondsStr = '00';
+  Offset position;
+  bool isRecording = false;
+  bool longRecording = false;
+  double _size = 50.0;
+  bool expand = false;
+  double oldX = 0;
+  double oldY = 0;
+  bool shouldActivate = false;
+  int tcount = 10;
+  var xs = Set();
+  var ys = Set();
+  int direction = -1;
+  double marginBack = 38.0;
+  double marginText = 36.0;
+  int scount = 0;
+  double vheight = 200.0;
+  bool showLockUi = false;
+  bool shouldSend = true;
 
   @override
   void initState() {
+    _recordController =
+        AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _recordController.repeat(reverse: true);
+
+    _animation = Tween(begin: 1.0, end: 0.0).animate(_recordController)
+      ..addListener(() {
+        setState(() {});
+      });
+
+
+
     _mPlayer.openAudioSession().then((value) {
       setState(() {
         print("shruti");
@@ -135,14 +180,12 @@ class _screenState extends State<screen> {
     }
     return _mRecorder.isStopped ? record : stopRecorder;
   }
-
   _Fn getPlaybackFn() {
     if (!_mPlayerIsInited || !_mplaybackReady || !_mRecorder.isStopped) {
       return null;
     }
     return _mPlayer.isStopped ? play : stopPlayer;
   }
-
 
   Stream<int> stopWatchStream() {
     StreamController<int> streamController;
@@ -179,6 +222,152 @@ class _screenState extends State<screen> {
     );
 
     return streamController.stream;
+  }
+  Widget chatBox() {
+    return Container(
+      margin: const EdgeInsets.only(right: 78.0, left: 18.0, bottom: 16.0),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30.0),
+          boxShadow: [
+            BoxShadow(
+                color: Color.fromRGBO(51, 51, 51, 0.6),
+                blurRadius: 0.0,
+                offset: Offset(0, 0))
+          ]),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Material(
+              color: Colors.transparent,
+              child: InkWell(
+                  child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Icon(Icons.sentiment_very_satisfied,
+                          color: Colors.grey)),
+                  onTap: () {})),
+          Expanded(
+            child: TextField(
+              onTap: () {
+                // setState(() {
+                //   position = Offset(position.dx, position.dy - 254);
+                // });
+              },
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Write a message',
+                  hintStyle: TextStyle(color: Colors.grey)),
+            ),
+          ),
+          Material(
+              color: Colors.transparent,
+              child: InkWell(
+                  child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Icon(
+                        Icons.attach_file,
+                        size: 22.0,
+                        color: Colors.grey,
+                      )),
+                  onTap: () {})),
+          Material(
+              color: Colors.transparent,
+              child: InkWell(
+                  child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Icon(Icons.camera_alt, color: Colors.grey)),
+                  onTap: () {}))
+        ],
+      ),
+    );
+  }
+  Widget audioBox() {
+    return Container(
+      margin: EdgeInsets.only(right: marginBack, left: 18.0, bottom: 16.0),
+      padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30.0),
+          boxShadow: [
+            BoxShadow(
+                color: Color.fromRGBO(51, 51, 51, 0.6),
+                blurRadius: 0.0,
+                offset: Offset(0, 0))
+          ]),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          AnimatedOpacity(
+            opacity: _animation.value,
+            duration: Duration(milliseconds: 100),
+            child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                    child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 4.0),
+                        child: Icon(Icons.mic, color: Colors.red)),
+                    onTap: () {})),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              height: 48,
+              alignment: Alignment.centerLeft,
+              child: Text("$minutesStr:$secondsStr"),
+            ),
+          ),
+          longRecording
+              ? GestureDetector(
+              onTap: () {
+                if (_mRecorder.isRecording) {
+                  setState(() {
+                    shouldSend = false;
+                    longRecording = false;
+                  });
+                  stopRecorder();
+                }
+                _resetUi();
+                _resetTimer();
+              },
+              child: Text("Cancel", textAlign: TextAlign.center))
+              : Shimmer.fromColors(
+              direction: ShimmerDirection.rtl,
+              child: Text(
+                "Swipe to cancel",
+                textAlign: TextAlign.center,
+              ),
+              baseColor: Colors.red,
+              highlightColor: Colors.yellow),
+          SizedBox(width: marginText),
+        ],
+      ),
+    );
+  }
+  void _resetTimer() {
+    if (!longRecording) {
+      timerSubscription.cancel();
+      timerStream = null;
+      setState(() {
+        minutesStr = '00';
+        secondsStr = '00';
+      });
+    }
+  }
+  void _resetUi() {
+    //_resetTimer();
+    setState(() {
+      xs.clear();
+      ys.clear();
+      tcount = 10;
+      isRecording = longRecording ? true : false;
+      marginBack = longRecording ? 64.0 : 38.0;
+      marginText = longRecording ? 16 : 36.0;
+      scount = 0;
+      position = Offset(oldX, oldY);
+      showLockUi = false;
+      vheight = 200;
+    });
   }
 
   @override
@@ -229,11 +418,10 @@ class _screenState extends State<screen> {
               )
             ],
           ),
-          body: Column(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
+          body: Consumer<ScreenHeight>(
+            builder: (context, _res, child) =>Stack(
+              children: [
+                Container(
                   padding: const EdgeInsets.only(bottom: 58.0),
                   /* decoration: BoxDecoration(
                             image: DecorationImage(
@@ -329,14 +517,89 @@ class _screenState extends State<screen> {
                     ],
                   ),
                 ),
-              ),
-            ],
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: isRecording ? audioBox() : chatBox(),
+                ),
+                showLockUi
+                    ? Positioned(
+                  left: widget.width - 62,
+                  top: widget.height - 200,
+                  child: Container(
+                    height: vheight,
+                    width: 54,
+                    alignment: Alignment.topCenter,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(50),
+                            topRight: Radius.circular(50)),
+                        color: Colors.black38),
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.lock, color: Colors.white)),
+                  ),
+                )
+                    : Container(),
+
+              ],
+            ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: getRecorderFn(),
-            child: Icon(
-              Icons.mic,
-              color: Colors.white,
+            //onPressed: getRecorderFn(),
+
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (longRecording) {
+                  setState(() {
+                    shouldSend = true;
+                    longRecording = false;
+                  });
+                  if (_mRecorder.isRecording) stopRecorder();
+                  _resetUi();
+                  _resetTimer();
+                }
+              },
+
+              onLongPressStart: (_) {
+                HapticFeedback.mediumImpact();
+                setState(() {
+                  isRecording = true;
+                });
+                if (_mRecorder.isStopped) {
+                  record();
+                }
+                timerStream = stopWatchStream();
+                timerSubscription = timerStream.listen((int newTick) {
+                  setState(() {
+                    minutesStr = ((newTick / 60) % 60)
+                        .floor()
+                        .toString()
+                        .padLeft(2, '0');
+                    secondsStr =
+                        (newTick % 60).floor().toString().padLeft(2, '0');
+                    if (secondsStr == '03') showLockUi = true;
+                  });
+                });
+              },
+
+              onLongPressEnd: (_) {
+                HapticFeedback.lightImpact();
+
+                if (_mRecorder.isRecording && !longRecording) {
+                  setState(() {
+                    shouldSend = true;
+                  });
+                  stopRecorder();
+                }
+                _resetUi();
+                _resetTimer();
+              },
+
+              child: Icon(
+                Icons.mic,
+                color: Colors.white,
+              ),
             ),
             backgroundColor: Color(0xfffbbec5),
           ),

@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 
+int count=0;
 typedef _Fn = void Function();
 
 class BottomInput extends StatefulWidget {
@@ -61,8 +62,13 @@ class _BottomInputState extends State<BottomInput>
   bool shouldSend = true;
 
   // Audio
-  FlutterSoundRecorder _myRecorder = FlutterSoundRecorder();
+  FlutterSoundRecorder _mRecorder = FlutterSoundRecorder();
+  FlutterSoundPlayer _mPlayer = FlutterSoundPlayer();
+  bool _mPlayerIsInited = false;
   bool _mRecorderIsInited = false;
+  bool _mplaybackReady = false;
+  final String _mPath = 'flutter_sound_example.aac';
+  var msgList = [];
   String filePath = "";
 
   @override
@@ -97,10 +103,9 @@ class _BottomInputState extends State<BottomInput>
         throw RecordingPermissionException('Microphone permission not granted');
       }
     }
-    await _myRecorder.openAudioSession();
+    await _mRecorder.openAudioSession();
     _mRecorderIsInited = true;
   }
-
   void _updateSize() {
     setState(() {
       _size = expand ? 50.0 : 80.0;
@@ -111,41 +116,66 @@ class _BottomInputState extends State<BottomInput>
   }
 
   @override
+
   void dispose() {
     this._recordController = null;
-    _myRecorder.closeAudioSession();
-    _myRecorder = null;
+    _mRecorder.closeAudioSession();
+    _mRecorder = null;
     super.dispose();
   }
-
-  Future<void> record() async {
-    if (_mRecorderIsInited) {
-      var tempDir = await getTemporaryDirectory();
-      String path =
-          '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.aac';
-      await _myRecorder.startRecorder(
-        toFile: path,
-        codec: Codec.aacADTS,
-      );
+  void record() {
+    _mRecorder
+        .startRecorder(
+      toFile: _mPath,
+      codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
+    )
+        .then((value) {
       setState(() {});
-    } else {
-      print("Recorder not inited");
-    }
+    });
   }
 
-  Future<void> stopRecorder() async {
-    String url = await _myRecorder.stopRecorder();
-    setState(() {
-      filePath = url;
+  void stopRecorder() async {
+    await _mRecorder.stopRecorder().then((value) {
+      setState(() {
+        //var url = value;
+        _mplaybackReady = true;
+      });
     });
-    if (shouldSend) widget.onAudioSend(filePath);
+  }
+  void play() {
+    assert(_mPlayerIsInited &&
+        _mplaybackReady &&
+        _mRecorder.isStopped &&
+        _mPlayer.isStopped);
+    _mPlayer
+        .startPlayer(
+        fromURI: _mPath,
+        //codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
+        whenFinished: () {
+          setState(() {});
+        })
+        .then((value) {
+      setState(() {});
+    });
+  }
+
+  void stopPlayer() {
+    _mPlayer.stopPlayer().then((value) {
+      setState(() {});
+    });
   }
 
   _Fn getRecorderFn() {
     if (!_mRecorderIsInited) {
       return null;
     }
-    return _myRecorder.isStopped ? record : stopRecorder;
+    return _mRecorder.isStopped ? record : stopRecorder;
+  }
+  _Fn getPlaybackFn() {
+    if (!_mPlayerIsInited || !_mplaybackReady || !_mRecorder.isStopped) {
+      return null;
+    }
+    return _mPlayer.isStopped ? play : stopPlayer;
   }
 
   Stream<int> stopWatchStream() {
@@ -244,7 +274,6 @@ class _BottomInputState extends State<BottomInput>
       ),
     );
   }
-
   Widget audioBox() {
     return Container(
       margin: EdgeInsets.only(right: marginBack, left: 8.0, bottom: 4.0),
@@ -283,7 +312,7 @@ class _BottomInputState extends State<BottomInput>
           longRecording
               ? GestureDetector(
               onTap: () {
-                if (_myRecorder.isRecording) {
+                if (_mRecorder.isRecording) {
                   setState(() {
                     shouldSend = false;
                     longRecording = false;
@@ -307,7 +336,6 @@ class _BottomInputState extends State<BottomInput>
       ),
     );
   }
-
   void _resetTimer() {
     if (!longRecording) {
       timerSubscription.cancel();
@@ -318,7 +346,6 @@ class _BottomInputState extends State<BottomInput>
       });
     }
   }
-
   void _resetUi() {
     //_resetTimer();
     setState(() {
@@ -375,7 +402,7 @@ class _BottomInputState extends State<BottomInput>
                     shouldSend = true;
                     longRecording = false;
                   });
-                  if (_myRecorder.isRecording) stopRecorder();
+                  if (_mRecorder.isRecording) stopRecorder();
                   _resetUi();
                   _resetTimer();
                 }
@@ -387,7 +414,7 @@ class _BottomInputState extends State<BottomInput>
                 setState(() {
                   isRecording = true;
                 });
-                if (_myRecorder.isStopped) {
+                if (_mRecorder.isStopped) {
                   record();
                 }
                 timerStream = stopWatchStream();
@@ -407,7 +434,7 @@ class _BottomInputState extends State<BottomInput>
               onLongPressEnd: (_) {
                 HapticFeedback.lightImpact();
                 _updateSize();
-                if (_myRecorder.isRecording && !longRecording) {
+                if (_mRecorder.isRecording && !longRecording) {
                   setState(() {
                     shouldSend = true;
                   });
@@ -468,7 +495,7 @@ class _BottomInputState extends State<BottomInput>
                   setState(() {
                     shouldSend = false;
                   });
-                  if (_myRecorder.isRecording) stopRecorder();
+                  if (_mRecorder.isRecording) stopRecorder();
                   _resetUi();
                   _resetTimer();
                 }
