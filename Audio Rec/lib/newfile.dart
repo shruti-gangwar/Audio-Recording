@@ -13,13 +13,13 @@ import 'package:shimmer/shimmer.dart';
 
 typedef _Fn = void Function();
 
-class BottomInput extends StatefulWidget {
+class BottomInput2 extends StatefulWidget {
   final double width;
   final double height;
   final Function(String) onAudioSend;
   final Function() onAudioCancel;
 
-  const BottomInput(
+  const BottomInput2(
       {Key key,
         @required this.width,
         @required this.height,
@@ -28,10 +28,10 @@ class BottomInput extends StatefulWidget {
       : super(key: key);
 
   @override
-  _BottomInputState createState() => _BottomInputState();
+  _BottomInput2State createState() => _BottomInput2State();
 }
 
-class _BottomInputState extends State<BottomInput>
+class _BottomInput2State extends State<BottomInput2>
     with TickerProviderStateMixin {
   AnimationController _recordController;
   Animation _animation;
@@ -60,8 +60,12 @@ class _BottomInputState extends State<BottomInput>
   bool shouldSend = true;
 
   // Audio
+  FlutterSoundPlayer _myPlayer = FlutterSoundPlayer();
   FlutterSoundRecorder _myRecorder = FlutterSoundRecorder();
   bool _mRecorderIsInited = true;
+  bool _myPlayerIsInited = false;
+  bool _myplaybackReady = false;
+  final String _mPath = 'flutter_sound_example.aac';
   String filePath = "";
 
   @override
@@ -80,6 +84,14 @@ class _BottomInputState extends State<BottomInput>
     this.oldY = widget.height - 54;
 
     // Audio settings
+
+    _myPlayer.openAudioSession().then((value) {
+      setState(() {
+        print("shruti");
+        _myPlayerIsInited = true;
+      });
+    });
+
     openTheRecorder().then((value) {
       setState(() {
         _mRecorderIsInited = true;
@@ -91,7 +103,9 @@ class _BottomInputState extends State<BottomInput>
 
   Future<void> openTheRecorder() async {
     if (!kIsWeb) {
+      print("shrutiii3");
       var status = await Permission.microphone.request();
+      print("shrutiii1");
       if (status != PermissionStatus.granted) {
         throw RecordingPermissionException('Microphone permission not granted');
       }
@@ -111,47 +125,69 @@ class _BottomInputState extends State<BottomInput>
 
   @override
   void dispose() {
-    this._recordController = null;
+    _myPlayer.closeAudioSession();
+    _myPlayer = null;
+
     _myRecorder.closeAudioSession();
     _myRecorder = null;
     super.dispose();
   }
 
-  Future<void> record() async {
-    if (_mRecorderIsInited) {
-      var tempDir = await getTemporaryDirectory();
-      String path =
-          '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.aac';
-      await _myRecorder.startRecorder(
-        toFile: path,
-        codec: Codec.aacADTS,
-      );
-      setState(() {
-        print("shruti");
-      });
-    } else {
-      print("shruti");
-      print("Recorder not inited");
-    }
-  }
-
-  Future<void> stopRecorder() async {
-    String url = await _myRecorder.stopRecorder();
-    setState(() {
-      filePath = url;
+  void record() {
+    _myRecorder
+        .startRecorder(
+      toFile: _mPath,
+      codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
+    )
+        .then((value) {
+      setState(() {});
     });
-    if (shouldSend) widget.onAudioSend(filePath);
   }
 
+  void stopRecorder() async {
+    await _myRecorder.stopRecorder().then((value) {
+      setState(() {
+        //var url = value;
+        _myplaybackReady = true;
+      });
+    });
+  }
 
+  void play() {
+    assert(_myPlayerIsInited &&
+        _myplaybackReady &&
+        _myRecorder.isStopped &&
+        _myPlayer.isStopped);
+    _myPlayer
+        .startPlayer(
+        fromURI: _mPath,
+        //codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
+        whenFinished: () {
+          setState(() {});
+        })
+        .then((value) {
+      setState(() {});
+    });
+  }
 
-
+  void stopPlayer() {
+    _myPlayer.stopPlayer().then((value) {
+      setState(() {});
+    });
+  }
 
   _Fn getRecorderFn() {
-    if (!_mRecorderIsInited) {
+    if (!_mRecorderIsInited || !_myPlayer.isStopped) {
       return null;
     }
     return _myRecorder.isStopped ? record : stopRecorder;
+  }
+
+  _Fn getPlaybackFn() {
+    if (!_myPlayerIsInited || !_myplaybackReady || !_myRecorder.isStopped) {
+      return null;
+    }
+    return _myPlayer.isStopped ? play : stopPlayer;
   }
 
   Stream<int> stopWatchStream() {
@@ -274,14 +310,14 @@ class _BottomInputState extends State<BottomInput>
                 color: Colors.transparent,
                 child: InkWell(
                     child: Container(
-                        // padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      // padding: EdgeInsets.symmetric(horizontal: 4.0),
                         child: Icon(Icons.mic, color: Colors.red)),
                     onTap: () {})),
           ),
           Expanded(
             flex: 1,
             child: Container(
-              height: 48,
+              height: 5,
               alignment: Alignment.centerLeft,
               child: Text("$minutesStr:$secondsStr"),
             ),
@@ -346,6 +382,30 @@ class _BottomInputState extends State<BottomInput>
     return Consumer<ScreenHeight>(
       builder: (context, _res, child) => Stack(
         children: [
+          Container(
+            margin: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(3),
+            height: 80,
+            width: double.infinity,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Color(0xFFFAF0E6),
+            ),
+            child: Row(children: [
+              ElevatedButton(
+                onPressed: getPlaybackFn(),
+                //color: Colors.white,
+                //disabledColor: Colors.grey,
+                child: Icon(_myPlayer.isPlaying ? Icons.play_arrow_rounded : Icons.pause ),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              Text(_myPlayer.isPlaying
+                  ? 'Playback in progress'
+                  : 'Player is stopped'),
+            ]),
+          ),
           Align(
             alignment: Alignment.bottomLeft,
             child: isRecording ? audioBox() : chatBox(),

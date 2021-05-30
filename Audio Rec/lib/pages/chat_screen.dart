@@ -1,3 +1,4 @@
+import 'package:audio_recording_in_flutter/newfile.dart';
 import 'package:audio_recording_in_flutter/widgets/bottom_input.dart';
 import 'package:audio_recording_in_flutter/widgets/msg_box.dart';
 import 'package:bubble/bubble.dart';
@@ -155,6 +156,12 @@ class _ChatScreenState extends State<ChatScreen> {
                               margin: const BubbleEdges.only(top: 4),
                               child: const Text("What's the problem?"),
                             ),
+                            Bubble(
+                              style: styleMe,
+                              showNip: false,
+                              margin: const BubbleEdges.only(top: 4),
+                              child: const Text("What's the problem?"),
+                            ),
                           ],
                         ),
                       ),
@@ -163,7 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 Align(
                     alignment: Alignment.bottomLeft,
-                    child: BottomInput(
+                    child: BottomInput2(
                       width: width,
                       height: height,
                       onAudioSend: (String path) {
