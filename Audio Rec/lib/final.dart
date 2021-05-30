@@ -477,7 +477,7 @@ class _screenState extends State<screen>
                         margin: const BubbleEdges.only(top: 4),
                         child: const Text("What's the problem?"),
                       ),
-                      (count==0 )? Bubble(
+                      (count==1 )? Bubble(
                         style: styleMe,
                         showNip: false,
                         margin: const BubbleEdges.only(top: 4),
@@ -542,139 +542,68 @@ class _screenState extends State<screen>
                   ),
                 )
                     : Container(),
-
               ],
             ),
           ),
-          floatingActionButton: Draggable(
-            feedback: FloatingActionButton(
-              onPressed: (){
+          floatingActionButton: FloatingActionButton(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                if (longRecording) {
+                  setState(() {
+                    shouldSend = true;
+                    longRecording = false;
+                  });
+                  if (_mRecorder.isRecording) stopRecorder();
+                  _resetUi();
+                  _resetTimer();
+                }
+              },
+
+              onLongPressStart: (_) {
+                HapticFeedback.mediumImpact();
                 setState(() {
-                  count++;
+                  count=1;
                   print(count);
                   print("shrutii");
-                });},
-
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  if (longRecording) {
-                    setState(() {
-                      shouldSend = true;
-                      longRecording = false;
-                    });
-                    if (_mRecorder.isRecording) stopRecorder();
-                    _resetUi();
-                    _resetTimer();
-                  }
-                },
-
-                onLongPressStart: (_) {
-                  HapticFeedback.mediumImpact();
+                  isRecording = true;
+                });
+                if (_mRecorder.isStopped) {
+                  record();
+                }
+                timerStream = stopWatchStream();
+                timerSubscription = timerStream.listen((int newTick) {
                   setState(() {
-                    isRecording = true;
+                    minutesStr = ((newTick / 60) % 60)
+                        .floor()
+                        .toString()
+                        .padLeft(2, '0');
+                    secondsStr =
+                        (newTick % 60).floor().toString().padLeft(2, '0');
+                    if (secondsStr == '03') showLockUi = true;
                   });
-                  if (_mRecorder.isStopped) {
-                    record();
-                  }
-                  timerStream = stopWatchStream();
-                  timerSubscription = timerStream.listen((int newTick) {
-                    setState(() {
-                      minutesStr = ((newTick / 60) % 60)
-                          .floor()
-                          .toString()
-                          .padLeft(2, '0');
-                      secondsStr =
-                          (newTick % 60).floor().toString().padLeft(2, '0');
-                      if (secondsStr == '03') showLockUi = true;
-                    });
-                  });
-                },
+                });
+              },
 
-                onLongPressEnd: (_) {
-                  HapticFeedback.lightImpact();
+              onLongPressEnd: (_) {
+                HapticFeedback.lightImpact();
 
-                  if (_mRecorder.isRecording && !longRecording) {
-                    setState(() {
-                      shouldSend = true;
-                    });
-                    stopRecorder();
-                  }
-                  _resetUi();
-                  _resetTimer();
-                },
-
-                child: Icon(
-                  Icons.mic,
-                  color: Colors.white,
-                ),
-              ),
-              backgroundColor: Color(0xfffbbec5),
-            ),
-            child: FloatingActionButton(
-              onPressed: (){
-               setState(() {
-                 count++;
-                 print(count);
-                 print("shrutii");
-                            });},
-
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  if (longRecording) {
-                    setState(() {
-                      shouldSend = true;
-                      longRecording = false;
-                    });
-                    if (_mRecorder.isRecording) stopRecorder();
-                    _resetUi();
-                    _resetTimer();
-                  }
-                },
-
-                onLongPressStart: (_) {
-                  HapticFeedback.mediumImpact();
+                if (_mRecorder.isRecording && !longRecording) {
                   setState(() {
-                    isRecording = true;
+                    shouldSend = true;
                   });
-                  if (_mRecorder.isStopped) {
-                    record();
-                  }
-                  timerStream = stopWatchStream();
-                  timerSubscription = timerStream.listen((int newTick) {
-                    setState(() {
-                      minutesStr = ((newTick / 60) % 60)
-                          .floor()
-                          .toString()
-                          .padLeft(2, '0');
-                      secondsStr =
-                          (newTick % 60).floor().toString().padLeft(2, '0');
-                      if (secondsStr == '03') showLockUi = true;
-                    });
-                  });
-                },
+                  stopRecorder();
+                }
+                _resetUi();
+                _resetTimer();
+              },
 
-                onLongPressEnd: (_) {
-                  HapticFeedback.lightImpact();
-
-                  if (_mRecorder.isRecording && !longRecording) {
-                    setState(() {
-                      shouldSend = true;
-                    });
-                    stopRecorder();
-                  }
-                  _resetUi();
-                  _resetTimer();
-                },
-
-                child: Icon(
-                  Icons.mic,
-                  color: Colors.white,
-                ),
+              child: Icon(
+                Icons.mic,
+                color: Colors.white,
               ),
-              backgroundColor: Color(0xfffbbec5),
             ),
+            backgroundColor: Color(0xfffbbec5),
           ),
 
         ),
