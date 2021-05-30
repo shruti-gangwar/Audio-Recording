@@ -8,6 +8,7 @@ import 'package:flutter_keyboard_size/flutter_keyboard_size.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:audio_recording_in_flutter/models/msg_model.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:audio_recording_in_flutter/newfile.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -33,14 +34,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
 
   var msgList = [];
-  FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
-  bool _mPlayerIsInited = false;
+  FlutterSoundPlayer _myPlayer = FlutterSoundPlayer();
+  bool _myPlayerIsInited = false;
 
   @override
   void initState() {
-    _audioPlayer.openAudioSession().then((value) {
+    _myPlayer.openAudioSession().then((value) {
       setState(() {
-        _mPlayerIsInited = true;
+        _myPlayerIsInited = true;
       });
     });
     super.initState();
@@ -48,13 +49,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _audioPlayer.closeAudioSession();
-    _audioPlayer = null;
+    _myPlayer.closeAudioSession();
+    _myPlayer = null;
     super.dispose();
   }
 
   Future<void> playRecording(String uri) async {
-    _audioPlayer.startPlayer(
+    _myPlayer.startPlayer(
       fromURI: uri,
       codec: Codec.aacADTS,
     );
@@ -62,8 +63,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery
+        .of(context)
+        .size
+        .width;
+    var height = MediaQuery
+        .of(context)
+        .size
+        .height;
     return KeyboardSizeProvider(
       smallSize: 500.0,
       child: SafeArea(
@@ -73,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Column(
                   children: [
                     Container(
-                      padding: EdgeInsets.only(top:17.0, left:7.0),
+                      padding: EdgeInsets.only(top: 17.0, left: 7.0),
                       child: Row(
 
                         children: [
@@ -85,7 +92,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             width: 9.0,
                           ),
                           CircleAvatar(
-                            foregroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Theme
+                                .of(context)
+                                .primaryColor,
                             backgroundColor: Colors.grey,
                           ),
                           SizedBox(
@@ -105,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       flex: 1,
                       child: Container(
                         padding: const EdgeInsets.only(bottom: 58.0),
-                       /* decoration: BoxDecoration(
+                        /* decoration: BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/images/background.png"),
                             fit: BoxFit.cover,
@@ -138,7 +147,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             Bubble(
                               style: styleSomebody,
                               child:
-                              const Text("I've been having a problem with my computer."),
+                              const Text(
+                                  "I've been having a problem with my computer."),
                             ),
                             Bubble(
                               style: styleSomebody,
@@ -160,7 +170,40 @@ class _ChatScreenState extends State<ChatScreen> {
                               style: styleMe,
                               showNip: false,
                               margin: const BubbleEdges.only(top: 4),
-                              child: const Text("What's the problem?"),
+                              child: Container(
+                                margin: const EdgeInsets.all(3),
+                                padding: const EdgeInsets.all(3),
+                                height: 50,
+                                width: 250,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Color(0xfffbbec5),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(children: [
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: getPlaybackFn(),
+                                      //color: Colors.white,
+                                      //disabledColor: Colors.grey,
+                                      child: Icon(
+                                        _myPlayer.isPlaying ? Icons
+                                            .play_arrow_rounded : Icons.pause,
+                                        color: Color(0xff0e2546),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    Text(_myPlayer.isPlaying
+                                        ? 'Playback in progress'
+                                        : 'Player is stopped'),
+                                  ]),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -178,7 +221,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           msgList.add(Msg(
                               path: path,
                               toMe: false,
-                              timestamp: "${DateTime.now().millisecondsSinceEpoch}"));
+                              timestamp: "${DateTime
+                                  .now()
+                                  .millisecondsSinceEpoch}"));
                         });
                       },
                       onAudioCancel: () {},
@@ -189,3 +234,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
+
+getPlaybackFn() {
+}
+
+

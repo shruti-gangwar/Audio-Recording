@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -61,7 +62,7 @@ class _BottomInputState extends State<BottomInput>
 
   // Audio
   FlutterSoundRecorder _myRecorder = FlutterSoundRecorder();
-  bool _mRecorderIsInited = true;
+  bool _mRecorderIsInited = false;
   String filePath = "";
 
   @override
@@ -126,11 +127,8 @@ class _BottomInputState extends State<BottomInput>
         toFile: path,
         codec: Codec.aacADTS,
       );
-      setState(() {
-        print("shruti");
-      });
+      setState(() {});
     } else {
-      print("shruti");
       print("Recorder not inited");
     }
   }
@@ -142,10 +140,6 @@ class _BottomInputState extends State<BottomInput>
     });
     if (shouldSend) widget.onAudioSend(filePath);
   }
-
-
-
-
 
   _Fn getRecorderFn() {
     if (!_mRecorderIsInited) {
@@ -274,7 +268,7 @@ class _BottomInputState extends State<BottomInput>
                 color: Colors.transparent,
                 child: InkWell(
                     child: Container(
-                        // padding: EdgeInsets.symmetric(horizontal: 4.0),
+                        padding: EdgeInsets.symmetric(horizontal: 4.0),
                         child: Icon(Icons.mic, color: Colors.red)),
                     onTap: () {})),
           ),
@@ -353,7 +347,7 @@ class _BottomInputState extends State<BottomInput>
           showLockUi
               ? Positioned(
             left: widget.width - 62,
-            top: widget.height - 180,
+            top: widget.height - 200,
             child: Container(
               height: vheight,
               width: 54,
@@ -482,7 +476,7 @@ class _BottomInputState extends State<BottomInput>
               child: Container(
                 margin: const EdgeInsets.only(right: 16.0),
                 child: Material(
-                  color: Color(0xff0e2546),
+                  color: Color.fromRGBO(34, 153, 99, 1),
                   borderRadius: BorderRadius.circular(100),
                   child: AnimatedSize(
                     curve: Curves.easeIn,

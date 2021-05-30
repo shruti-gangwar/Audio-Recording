@@ -21,10 +21,10 @@ class BottomInput2 extends StatefulWidget {
 
   const BottomInput2(
       {Key key,
-        @required this.width,
-        @required this.height,
-        @required this.onAudioSend,
-        @required this.onAudioCancel})
+      @required this.width,
+      @required this.height,
+      @required this.onAudioSend,
+      @required this.onAudioCancel})
       : super(key: key);
 
   @override
@@ -160,11 +160,11 @@ class _BottomInput2State extends State<BottomInput2>
         _myPlayer.isStopped);
     _myPlayer
         .startPlayer(
-        fromURI: _mPath,
-        //codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
-        whenFinished: () {
-          setState(() {});
-        })
+            fromURI: _mPath,
+            //codec: kIsWeb ? Codec.opusWebM : Codec.aacADTS,
+            whenFinished: () {
+              setState(() {});
+            })
         .then((value) {
       setState(() {});
     });
@@ -310,7 +310,7 @@ class _BottomInput2State extends State<BottomInput2>
                 color: Colors.transparent,
                 child: InkWell(
                     child: Container(
-                      // padding: EdgeInsets.symmetric(horizontal: 4.0),
+                        // padding: EdgeInsets.symmetric(horizontal: 4.0),
                         child: Icon(Icons.mic, color: Colors.red)),
                     onTap: () {})),
           ),
@@ -324,26 +324,26 @@ class _BottomInput2State extends State<BottomInput2>
           ),
           longRecording
               ? GestureDetector(
-              onTap: () {
-                if (_myRecorder.isRecording) {
-                  setState(() {
-                    shouldSend = false;
-                    longRecording = false;
-                  });
-                  stopRecorder();
-                }
-                _resetUi();
-                _resetTimer();
-              },
-              child: Text("Cancel", textAlign: TextAlign.center))
+                  onTap: () {
+                    if (_myRecorder.isRecording) {
+                      setState(() {
+                        shouldSend = false;
+                        longRecording = false;
+                      });
+                      stopRecorder();
+                    }
+                    _resetUi();
+                    _resetTimer();
+                  },
+                  child: Text("Cancel", textAlign: TextAlign.center))
               : Shimmer.fromColors(
-              direction: ShimmerDirection.rtl,
-              child: Text(
-                "Swipe to cancel",
-                textAlign: TextAlign.center,
-              ),
-              baseColor: Colors.red,
-              highlightColor: Colors.yellow),
+                  direction: ShimmerDirection.rtl,
+                  child: Text(
+                    "Swipe to cancel",
+                    textAlign: TextAlign.center,
+                  ),
+                  baseColor: Colors.red,
+                  highlightColor: Colors.yellow),
           SizedBox(width: marginText),
         ],
       ),
@@ -385,26 +385,35 @@ class _BottomInput2State extends State<BottomInput2>
           Container(
             margin: const EdgeInsets.all(3),
             padding: const EdgeInsets.all(3),
-            height: 80,
-            width: double.infinity,
+            height: 50,
+            width: 250,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Color(0xFFFAF0E6),
+              color: Color(0xfffbbec5),
             ),
-            child: Row(children: [
-              ElevatedButton(
-                onPressed: getPlaybackFn(),
-                //color: Colors.white,
-                //disabledColor: Colors.grey,
-                child: Icon(_myPlayer.isPlaying ? Icons.play_arrow_rounded : Icons.pause ),
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Text(_myPlayer.isPlaying
-                  ? 'Playback in progress'
-                  : 'Player is stopped'),
-            ]),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white,
+                  ),
+                  onPressed: getPlaybackFn(),
+                  //color: Colors.white,
+                  //disabledColor: Colors.grey,
+                  child: Icon(
+                    _myPlayer.isPlaying ? Icons.play_arrow_rounded : Icons.pause,
+                    color: Color(0xff0e2546),
+                  ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Text(_myPlayer.isPlaying
+                    ? 'Playback in progress'
+                    : 'Player is stopped'),
+              ]),
+            ),
           ),
           Align(
             alignment: Alignment.bottomLeft,
@@ -412,29 +421,28 @@ class _BottomInput2State extends State<BottomInput2>
           ),
           showLockUi
               ? Positioned(
-            left: widget.width - 62,
-            top: widget.height - 180,
-            child: Container(
-              height: vheight,
-              width: 54,
-              alignment: Alignment.topCenter,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(50),
-                      topRight: Radius.circular(50)),
-                  color: Colors.black38),
-              child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(Icons.lock, color: Colors.white)),
-            ),
-          )
+                  left: widget.width - 62,
+                  top: widget.height - 180,
+                  child: Container(
+                    height: vheight,
+                    width: 54,
+                    alignment: Alignment.topCenter,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(50),
+                            topRight: Radius.circular(50)),
+                        color: Colors.black38),
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(Icons.lock, color: Colors.white)),
+                  ),
+                )
               : Container(),
           Positioned(
             left: position.dx,
             top: _res.isOpen ? position.dy - _res.keyboardHeight : position.dy,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
-
               onTap: () {
                 if (longRecording) {
                   setState(() {
@@ -446,7 +454,6 @@ class _BottomInput2State extends State<BottomInput2>
                   _resetTimer();
                 }
               },
-
               onLongPressStart: (_) {
                 HapticFeedback.mediumImpact();
                 _updateSize();
@@ -469,7 +476,6 @@ class _BottomInput2State extends State<BottomInput2>
                   });
                 });
               },
-
               onLongPressEnd: (_) {
                 HapticFeedback.lightImpact();
                 _updateSize();
@@ -482,7 +488,6 @@ class _BottomInput2State extends State<BottomInput2>
                 _resetUi();
                 _resetTimer();
               },
-
               onLongPressMoveUpdate: (mu) {
                 setState(() {
                   if (tcount == 0) {
