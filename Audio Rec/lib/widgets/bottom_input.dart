@@ -82,9 +82,9 @@ class _BottomInputState extends State<BottomInput>
         setState(() {});
       });
 
-    this.position = Offset(widget.width - 60, widget.height - 90);
+    this.position = Offset(widget.width - 60, widget.height - 150);
     this.oldX = widget.width - 60;
-    this.oldY = widget.height - 90;
+    this.oldY = widget.height - 150;
 
     // Audio settings
     openTheRecorder().then((value) {
@@ -377,7 +377,7 @@ class _BottomInputState extends State<BottomInput>
           showLockUi
               ? Positioned(
             left: widget.width - 62,
-            top: widget.height - 200,
+            top: widget.height - 250,
             child: Container(
               height: vheight,
               width: 54,

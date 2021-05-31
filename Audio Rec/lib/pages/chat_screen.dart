@@ -75,41 +75,45 @@ class _ChatScreenState extends State<ChatScreen> {
       smallSize: 500.0,
       child: SafeArea(
         child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xff0e2546),
+              leading: Row(
+                children: [
+                  SizedBox(
+                    width: 13,
+                  ),
+
+                  CircleAvatar(
+                    foregroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: Colors.grey,
+                  ),
+                ],
+              ),
+              title: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Text("Shruti"),
+                  ],
+                ),
+              ),
+              elevation: 0.7,
+              actions: <Widget>[
+                Icon(Icons.phone),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.0),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(Icons.video_call),
+                )
+              ],
+            ),
             body: Stack(
               children: [
                 Column(
                   children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 17.0, left: 7.0),
-                      child: Row(
 
-                        children: [
-                          Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 9.0,
-                          ),
-                          CircleAvatar(
-                            foregroundColor: Theme
-                                .of(context)
-                                .primaryColor,
-                            backgroundColor: Colors.grey,
-                          ),
-                          SizedBox(
-                            width: 9.0,
-                          ),
-                          Text("Shruti", style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w500,
-                          ),),
-                        ],
-                      ),
-                      height: 80,
-                      color: Color(0xff0e2546),
-                    ),
                     Expanded(
                       flex: 1,
                       child: Container(
