@@ -482,7 +482,7 @@ class _screenState extends State<screen>
                         margin: const BubbleEdges.only(top: 4),
                         child: const Text("What's the problem?"),
                       ),
-                      (count==1 )? Bubble(
+                      (count==8 )? Bubble(
                         style: styleMe,
                         showNip: false,
                         margin: const BubbleEdges.only(top: 4),

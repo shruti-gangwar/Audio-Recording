@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:audio_recording_in_flutter/pages/chat_screen.dart';
+import 'package:bubble/bubble.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +37,13 @@ class BottomInput extends StatefulWidget {
 
 class _BottomInputState extends State<BottomInput>
     with TickerProviderStateMixin {
+  static const styleMe = BubbleStyle(
+    nip: BubbleNip.rightCenter,
+    color: Color(0xfffbbec5),
+    elevation: 1,
+    margin: BubbleEdges.only(top: 8, left: 50),
+    alignment: Alignment.topRight,
+  );
   AnimationController _recordController;
   Animation _animation;
   bool flag = true;
@@ -218,6 +227,48 @@ class _BottomInputState extends State<BottomInput>
     return streamController.stream;
   }
 
+  Widget AudioBubble(){
+    Bubble(
+      style: styleMe,
+      showNip: false,
+      margin: const BubbleEdges.only(top: 4),
+      child: Container(
+        margin: const EdgeInsets.all(3),
+        padding: const EdgeInsets.all(3),
+        height: 50,
+        width: 250,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Color(0xfffbbec5),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.white,
+              ),
+              onPressed: getPlaybackFn(),
+              //color: Colors.white,
+              //disabledColor: Colors.grey,
+              child: Icon(
+                _mPlayer.isPlaying ? Icons
+                    .play_arrow_rounded : Icons.pause,
+                color: Color(0xff0e2546),
+              ),
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            Text(_mPlayer.isPlaying
+                ? 'Playback in progress'
+                : 'Player is stopped'),
+          ]),
+        ),
+      ),
+    );
+  }
+
   Widget chatBox() {
     return Container(
       margin: const EdgeInsets.only(right: 72.0, left: 9.0, bottom: 16.0),
@@ -369,7 +420,8 @@ class _BottomInputState extends State<BottomInput>
   Widget build(BuildContext context) {
     return Consumer<ScreenHeight>(
       builder: (context, _res, child) => Stack(
-        children: [
+        children:
+        [
           Align(
             alignment: Alignment.bottomLeft,
             child: isRecording ? audioBox() : chatBox(),
@@ -516,8 +568,11 @@ class _BottomInputState extends State<BottomInput>
                       child: Container(
                         width: _size,
                         height: _size,
-                        child: Icon(longRecording ? Icons.send : Icons.mic,
-                            color: Colors.white),
+                        child: IconButton(
+                          icon: Icon(longRecording ? Icons.send : Icons.mic,
+                              color: Colors.white),
+
+                        ),
                       ),
                     ),
                   ),

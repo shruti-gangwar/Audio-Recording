@@ -23,7 +23,6 @@ class _ChatScreenState extends State<ChatScreen> {
     margin: BubbleEdges.only(top: 8, right: 50),
     alignment: Alignment.topLeft,
   );
-
   static const styleMe = BubbleStyle(
     nip: BubbleNip.rightCenter,
     color: Color(0xfffbbec5),
@@ -31,8 +30,6 @@ class _ChatScreenState extends State<ChatScreen> {
     margin: BubbleEdges.only(top: 8, left: 50),
     alignment: Alignment.topRight,
   );
-
-
   var msgList = [];
   FlutterSoundPlayer _myPlayer = FlutterSoundPlayer();
   bool _myPlayerIsInited = false;
@@ -80,22 +77,24 @@ class _ChatScreenState extends State<ChatScreen> {
               leading: Row(
                 children: [
                   SizedBox(
-                    width: 13,
+                    width: 4,
                   ),
 
+                  SizedBox(
+                      child: Icon(Icons.arrow_back_ios)),
                   CircleAvatar(
-                    foregroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Theme
+                        .of(context)
+                        .primaryColor,
                     backgroundColor: Colors.grey,
+                    radius: 14,
                   ),
                 ],
               ),
-              title: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Text("Shruti"),
-                  ],
-                ),
+              title: Row(
+                children: [
+                  Text("Shruti", style: TextStyle(fontSize: 15.0,),),
+                ],
               ),
               elevation: 0.7,
               actions: <Widget>[
@@ -190,7 +189,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white,
                                       ),
-                                      onPressed: getPlaybackFn(),
+                                    //  onPressed: widget.onPress,
                                       //color: Colors.white,
                                       //disabledColor: Colors.grey,
                                       child: Icon(
@@ -238,7 +237,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  getPlaybackFn() {}
 }
+
+
 
 
