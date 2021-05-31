@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Color(0xff0e2546),
         accentColor: Color(0xfffbbec5),
       ),
-      home: screen(),
+      home: ChatScreen(),
     );
   }
 }

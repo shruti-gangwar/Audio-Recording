@@ -82,9 +82,9 @@ class _BottomInputState extends State<BottomInput>
         setState(() {});
       });
 
-    this.position = Offset(widget.width - 60, widget.height - 54);
+    this.position = Offset(widget.width - 60, widget.height - 90);
     this.oldX = widget.width - 60;
-    this.oldY = widget.height - 54;
+    this.oldY = widget.height - 90;
 
     // Audio settings
     openTheRecorder().then((value) {
@@ -106,14 +106,17 @@ class _BottomInputState extends State<BottomInput>
     await _mRecorder.openAudioSession();
     _mRecorderIsInited = true;
   }
+
   void _updateSize() {
     setState(() {
       _size = expand ? 50.0 : 80.0;
-      position = expand ? Offset(oldX, oldY) : Offset(oldX - 15, oldY - 15);
+      position = expand ? Offset(oldX, oldY) : Offset(
+          oldX - 15, oldY - 15);
       expand = !expand;
       shouldActivate = !shouldActivate;
     });
   }
+
 
   @override
 
@@ -217,7 +220,7 @@ class _BottomInputState extends State<BottomInput>
 
   Widget chatBox() {
     return Container(
-      margin: const EdgeInsets.only(right: 64.0, left: 8.0, bottom: 4.0),
+      margin: const EdgeInsets.only(right: 72.0, left: 9.0, bottom: 16.0),
       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
       decoration: BoxDecoration(
           color: Colors.white,
@@ -276,7 +279,7 @@ class _BottomInputState extends State<BottomInput>
   }
   Widget audioBox() {
     return Container(
-      margin: EdgeInsets.only(right: marginBack, left: 8.0, bottom: 4.0),
+      margin: EdgeInsets.only(right: marginBack, left: 9.0, bottom: 16.0),
       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 2.0),
       decoration: BoxDecoration(
           color: Colors.white,
@@ -392,7 +395,7 @@ class _BottomInputState extends State<BottomInput>
               : Container(),
           Positioned(
             left: position.dx,
-            top: _res.isOpen ? position.dy - _res.keyboardHeight : position.dy,
+            top: _res.isOpen ? position.dy - _res.keyboardHeight  : position.dy,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
 
@@ -501,7 +504,7 @@ class _BottomInputState extends State<BottomInput>
                 }
               },
               child: Container(
-                margin: const EdgeInsets.only(right: 16.0),
+                margin: const EdgeInsets.only(right: 18.0, bottom: 76.0),
                 child: Material(
                   color: Color.fromRGBO(34, 153, 99, 1),
                   borderRadius: BorderRadius.circular(100),

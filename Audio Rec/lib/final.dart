@@ -14,6 +14,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_keyboard_size/screen_height.dart';
 
 typedef _Fn = void Function();
 int count=0;
@@ -78,7 +80,6 @@ class _screenState extends State<screen>
   double vheight = 200.0;
   bool showLockUi = false;
   bool shouldSend = true;
-  Offset positions =Offset(20.0, 20.0);
 
   @override
   void initState() {
@@ -90,8 +91,6 @@ class _screenState extends State<screen>
       ..addListener(() {
         setState(() {});
       });
-
-
 
     _mPlayer.openAudioSession().then((value) {
       setState(() {
@@ -131,6 +130,16 @@ class _screenState extends State<screen>
     _mRecorderIsInited = true;
   }
 
+  void _updateSize() {
+    setState(() {
+      _size = expand ? 50.0 : 80.0;
+      position = expand ? Offset(oldX, oldY) : Offset(
+          oldX - 15, oldY - 15);
+      expand = !expand;
+      shouldActivate = !shouldActivate;
+    });
+  }
+
   // ----------------------  Here is the code for recording and playback -------
 
   void record() {
@@ -152,6 +161,8 @@ class _screenState extends State<screen>
       });
     });
   }
+
+
 
   void play() {
     assert(_mPlayerIsInited &&
@@ -181,12 +192,6 @@ class _screenState extends State<screen>
       return null;
     }
     return _mRecorder.isStopped ? record : stopRecorder;
-  }
-  _Fn getPlaybackFn() {
-    if (!_mPlayerIsInited || !_mplaybackReady || !_mRecorder.isStopped) {
-      return null;
-    }
-    return _mPlayer.isStopped ? play : stopPlayer;
   }
 
   Stream<int> stopWatchStream() {
@@ -523,25 +528,24 @@ class _screenState extends State<screen>
                   alignment: Alignment.bottomLeft,
                   child: isRecording ? audioBox() : chatBox(),
                 ),
-                showLockUi
-                    ? Positioned(
-                  left: widget.width - 62,
-                  top: widget.height - 200,
-                  child: Container(
-                    height: vheight,
-                    width: 54,
-                    alignment: Alignment.topCenter,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(50),
-                            topRight: Radius.circular(50)),
-                        color: Colors.black38),
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(Icons.lock, color: Colors.white)),
-                  ),
-                )
-                    : Container(),
+                Align(
+                    alignment: Alignment.bottomLeft,
+                    child: BottomInput(
+                      width: width,
+                      height: height,
+                      onAudioSend: (String path) {
+                        setState(() {
+                          msgList.add(Msg(
+                              path: path,
+                              toMe: false,
+                              timestamp: "${DateTime
+                                  .now()
+                                  .millisecondsSinceEpoch}"));
+                        });
+                      },
+                      onAudioCancel: () {},
+                    )),
+
               ],
             ),
           ),
@@ -598,6 +602,18 @@ class _screenState extends State<screen>
                 _resetTimer();
               },
 
+              onHorizontalDragStart: (_){
+                HapticFeedback.lightImpact();
+                setState(() {
+                  shouldSend = false;
+                  count=0;
+                  print("cancelled");
+                });
+                if (_mRecorder.isRecording) stopRecorder();
+                _resetUi();
+                _resetTimer();
+              },
+
               child: Icon(
                 Icons.mic,
                 color: Colors.white,
@@ -610,4 +626,6 @@ class _screenState extends State<screen>
       ),
     );
   }
+
+  getPlaybackFn() {}
 }
