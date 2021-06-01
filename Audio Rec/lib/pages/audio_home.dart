@@ -18,48 +18,50 @@ class _audioHomeState extends State<audioHome>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xff0e2546),
-        title: Text("Chat"),
-        elevation: 0.7,
-        bottom: TabBar(
-          indicatorSize: TabBarIndicatorSize.label,
-          controller: _tabController,
-          tabs: [
-            Tab(text: "Messages"),
-            Tab(text: "Groups"),
-            Tab(text: "Calls"),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text("Chat"),
+          elevation: 0.7,
+          bottom: TabBar(
+            indicatorSize: TabBarIndicatorSize.label,
+            controller: _tabController,
+            tabs: [
+              Tab(text: "Messages"),
+              Tab(text: "Groups"),
+              Tab(text: "Calls"),
 
-          ],
-          indicatorColor: Colors.white,
-        ),
-        actions: <Widget>[
-          Icon(Icons.search),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.0),
+            ],
+            indicatorColor: Colors.white,
           ),
-          Icon(Icons.more_vert)
-        ],
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          messageScreen(),
-          messageScreen(),
-          messageScreen(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => messageScreen()));
-        },
-        child: Icon(
-          Icons.message,
-          color: Colors.white,
+          actions: <Widget>[
+            Icon(Icons.search),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0),
+            ),
+            Icon(Icons.more_vert)
+          ],
         ),
-        backgroundColor: Color(0xfffbbec5),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            messageScreen(),
+            pageNotWorking(),
+            pageNotWorking(),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => pageNotWorking()));
+          },
+          child: Icon(
+            Icons.message,
+            color: Colors.white,
+          ),
+          backgroundColor: Color(0xfffbbec5),
+        ),
       ),
     );
   }

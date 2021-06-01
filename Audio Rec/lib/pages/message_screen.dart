@@ -11,7 +11,7 @@ class _messageScreenState extends State<messageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff0e2546),
+      backgroundColor: Colors.black,
       body: Container(
         decoration: BoxDecoration(
           color: Colors.white,

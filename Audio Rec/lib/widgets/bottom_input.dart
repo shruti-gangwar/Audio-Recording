@@ -10,16 +10,16 @@ import 'package:flutter_keyboard_size/screen_height.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_player.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 
-int count=0;
+
 typedef _Fn = void Function();
 
 class BottomInput extends StatefulWidget {
   final double width;
   final double height;
+  final int count;
   final Function(String) onAudioSend;
   final Function() onAudioCancel;
 
@@ -27,6 +27,7 @@ class BottomInput extends StatefulWidget {
       {Key key,
         @required this.width,
         @required this.height,
+        @required this.count,
         @required this.onAudioSend,
         @required this.onAudioCancel})
       : super(key: key);
@@ -43,6 +44,13 @@ class _BottomInputState extends State<BottomInput>
     elevation: 1,
     margin: BubbleEdges.only(top: 8, left: 50),
     alignment: Alignment.topRight,
+  );
+  static const styleSomebody = BubbleStyle(
+    nip: BubbleNip.leftCenter,
+    color: Color(0xfff0f1f5),
+    elevation: 1,
+    margin: BubbleEdges.only(top: 8, right: 50),
+    alignment: Alignment.topLeft,
   );
   AnimationController _recordController;
   Animation _animation;
@@ -104,7 +112,6 @@ class _BottomInputState extends State<BottomInput>
 
     super.initState();
   }
-
   Future<void> openTheRecorder() async {
     if (!kIsWeb) {
       var status = await Permission.microphone.request();
@@ -115,7 +122,6 @@ class _BottomInputState extends State<BottomInput>
     await _mRecorder.openAudioSession();
     _mRecorderIsInited = true;
   }
-
   void _updateSize() {
     setState(() {
       _size = expand ? 50.0 : 80.0;
@@ -145,7 +151,6 @@ class _BottomInputState extends State<BottomInput>
       setState(() {});
     });
   }
-
   void stopRecorder() async {
     await _mRecorder.stopRecorder().then((value) {
       setState(() {
@@ -170,13 +175,11 @@ class _BottomInputState extends State<BottomInput>
       setState(() {});
     });
   }
-
   void stopPlayer() {
     _mPlayer.stopPlayer().then((value) {
       setState(() {});
     });
   }
-
   _Fn getRecorderFn() {
     if (!_mRecorderIsInited) {
       return null;
@@ -189,7 +192,6 @@ class _BottomInputState extends State<BottomInput>
     }
     return _mPlayer.isStopped ? play : stopPlayer;
   }
-
   Stream<int> stopWatchStream() {
     StreamController<int> streamController;
     Timer timer;
@@ -268,7 +270,6 @@ class _BottomInputState extends State<BottomInput>
       ),
     );
   }
-
   Widget chatBox() {
     return Container(
       margin: const EdgeInsets.only(right: 72.0, left: 9.0, bottom: 16.0),
@@ -422,6 +423,109 @@ class _BottomInputState extends State<BottomInput>
       builder: (context, _res, child) => Stack(
         children:
         [
+          Column(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 58.0),
+                  /* decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/images/background.png"),
+                            fit: BoxFit.cover,
+                          ),
+                        ),*/
+                  child: ListView(
+                    padding: const EdgeInsets.all(8),
+                    children: [
+                      Bubble(
+                        alignment: Alignment.center,
+                        color: const Color.fromARGB(255, 212, 234, 244),
+                        margin: const BubbleEdges.only(top: 8),
+                        child: const Text(
+                          'TODAY',
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 4.0,
+                      ),
+                      Bubble(
+                        style: styleSomebody,
+                        child: const Text(
+                            'Hi Shruti. Sorry to bother you. I need your help.'),
+                      ),
+                      Bubble(
+                        style: styleMe,
+                        child: const Text("Whats'up?"),
+                      ),
+                      Bubble(
+                        style: styleSomebody,
+                        child:
+                        const Text(
+                            "I've been having a problem with my laptop."),
+                      ),
+                      Bubble(
+                        style: styleSomebody,
+                        margin: const BubbleEdges.only(top: 4),
+                        showNip: false,
+                        child: const Text('Can you help me fix that?'),
+                      ),
+                      Bubble(
+                        style: styleMe,
+                        child: const Text('yeah sure'),
+                      ),
+                      Bubble(
+                        style: styleMe,
+                        showNip: false,
+                        margin: const BubbleEdges.only(top: 4),
+                        child: const Text("What's the problem?"),
+                      ),
+                      (count>=1 )? Bubble(
+                        style: styleMe,
+                        showNip: false,
+                        margin: const BubbleEdges.only(top: 4),
+                        child: Container(
+                          margin: const EdgeInsets.all(3),
+                          padding: const EdgeInsets.all(3),
+                          height: 50,
+                          width: 250,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: Color(0xfffbbec5),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(children: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.white,
+                                ),
+                                onPressed: getPlaybackFn,
+                                //color: Colors.white,
+                                //disabledColor: Colors.grey,
+                                child: Icon(
+                                  _mPlayer.isPlaying ? Icons
+                                      .play_arrow_rounded : Icons.pause,
+                                  color: Color(0xff0e2546),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Text(_mPlayer.isPlaying
+                                  ? 'Playback in progress'
+                                  : 'Player is stopped'),
+                            ]),
+                          ),
+                        ),
+                      ):Container(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
           Align(
             alignment: Alignment.bottomLeft,
             child: isRecording ? audioBox() : chatBox(),
@@ -491,8 +595,11 @@ class _BottomInputState extends State<BottomInput>
                 _updateSize();
                 if (_mRecorder.isRecording && !longRecording) {
                   setState(() {
+                    count++;
+                    print(count);
                     shouldSend = true;
                   });
+                  getPlaybackFn();
                   stopRecorder();
                 }
                 _resetUi();
@@ -558,7 +665,7 @@ class _BottomInputState extends State<BottomInput>
               child: Container(
                 margin: const EdgeInsets.only(right: 18.0, bottom: 76.0),
                 child: Material(
-                  color: Color.fromRGBO(34, 153, 99, 1),
+                  color: Colors.black,
                   borderRadius: BorderRadius.circular(100),
                   child: AnimatedSize(
                     curve: Curves.easeIn,
@@ -569,9 +676,18 @@ class _BottomInputState extends State<BottomInput>
                         width: _size,
                         height: _size,
                         child: IconButton(
+                          onPressed: (){
+                            setState(() {
+                              shouldSend = false;
+                              count++;
+                            });
+                            getPlaybackFn();
+                            _resetUi();
+                            _resetTimer();
+                          },
+
                           icon: Icon(longRecording ? Icons.send : Icons.mic,
                               color: Colors.white),
-
                         ),
                       ),
                     ),
