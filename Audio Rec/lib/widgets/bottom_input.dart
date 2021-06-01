@@ -515,7 +515,7 @@ class _BottomInputState extends State<BottomInput>
                               ),
                               Text(_mPlayer.isPlaying
                                   ? 'Playback in progress'
-                                  : 'Player is stopped'),
+                                  : 'Playback in progress'),
                             ]),
                           ),
                         ),
@@ -678,7 +678,7 @@ class _BottomInputState extends State<BottomInput>
                         child: IconButton(
                           onPressed: (){
                             setState(() {
-                              shouldSend = false;
+                              shouldSend = true;
                               count++;
                             });
                             getPlaybackFn();
