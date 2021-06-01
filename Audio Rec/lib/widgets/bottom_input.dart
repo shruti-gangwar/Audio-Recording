@@ -489,29 +489,34 @@ class _BottomInputState extends State<BottomInput>
                           margin: const EdgeInsets.all(3),
                           padding: const EdgeInsets.all(3),
                           height: 50,
-                          width: 250,
+                          width: 220,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: Color(0xfffbbec5),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(4.0),
                             child: Row(children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.white,
-                                ),
-                                onPressed: getPlaybackFn,
-                                //color: Colors.white,
-                                //disabledColor: Colors.grey,
+                              CircleAvatar(
+                                foregroundColor: Theme
+                                    .of(context)
+                                    .primaryColor,
+                                backgroundColor: Colors.grey,
+                                backgroundImage: AssetImage('images/girl.jpeg'),
+                                radius: 16,
+                              ),
+                              SizedBox(
+                                width: 6,
+                              ),
+                              Container(
                                 child: Icon(
                                   _mPlayer.isPlaying ? Icons
-                                      .play_arrow_rounded : Icons.pause,
-                                  color: Color(0xff0e2546),
+                                      .play_arrow_rounded : Icons.play_arrow_rounded,
+                                  color: Colors.black,
                                 ),
                               ),
                               SizedBox(
-                                width: 20,
+                                width: 6,
                               ),
                               Text(_mPlayer.isPlaying
                                   ? 'Playback in progress'
