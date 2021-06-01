@@ -6,6 +6,7 @@ class homePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         body: Column(
 
           crossAxisAlignment: CrossAxisAlignment.start,
