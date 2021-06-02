@@ -84,7 +84,7 @@ class _BottomInputState extends State<BottomInput>
   bool _mPlayerIsInited = false;
   bool _mRecorderIsInited = false;
   bool _mplaybackReady = false;
-  final String _mPath = 'flutter_sound_example.aac';
+  final String _mPath = 'flutter_sound_recording.aac';
   var msgList = [];
   String filePath = "";
 
@@ -104,6 +104,13 @@ class _BottomInputState extends State<BottomInput>
     this.oldY = widget.height - 150;
 
     // Audio settings
+    _mPlayer.openAudioSession().then((value) {
+      setState(() {
+        print("shruti");
+        _mPlayerIsInited = true;
+      });
+    });
+
     openTheRecorder().then((value) {
       setState(() {
         _mRecorderIsInited = true;
@@ -111,6 +118,14 @@ class _BottomInputState extends State<BottomInput>
     });
 
     super.initState();
+  }
+  void dispose() {
+    _mPlayer.closeAudioSession();
+    _mPlayer = null;
+
+    _mRecorder.closeAudioSession();
+    _mRecorder = null;
+    super.dispose();
   }
   Future<void> openTheRecorder() async {
     if (!kIsWeb) {
@@ -132,15 +147,6 @@ class _BottomInputState extends State<BottomInput>
     });
   }
 
-
-  @override
-
-  void dispose() {
-    this._recordController = null;
-    _mRecorder.closeAudioSession();
-    _mRecorder = null;
-    super.dispose();
-  }
   void record() {
     _mRecorder
         .startRecorder(
@@ -175,13 +181,15 @@ class _BottomInputState extends State<BottomInput>
       setState(() {});
     });
   }
+
   void stopPlayer() {
     _mPlayer.stopPlayer().then((value) {
       setState(() {});
     });
   }
+
   _Fn getRecorderFn() {
-    if (!_mRecorderIsInited) {
+    if (!_mRecorderIsInited || !_mPlayer.isStopped) {
       return null;
     }
     return _mRecorder.isStopped ? record : stopRecorder;
@@ -229,47 +237,6 @@ class _BottomInputState extends State<BottomInput>
     return streamController.stream;
   }
 
-  Widget AudioBubble(){
-    Bubble(
-      style: styleMe,
-      showNip: false,
-      margin: const BubbleEdges.only(top: 4),
-      child: Container(
-        margin: const EdgeInsets.all(3),
-        padding: const EdgeInsets.all(3),
-        height: 50,
-        width: 250,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Color(0xfffbbec5),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: Colors.white,
-              ),
-              onPressed: getPlaybackFn(),
-              //color: Colors.white,
-              //disabledColor: Colors.grey,
-              child: Icon(
-                _mPlayer.isPlaying ? Icons
-                    .play_arrow_rounded : Icons.pause,
-                color: Color(0xff0e2546),
-              ),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            Text(_mPlayer.isPlaying
-                ? 'Playback in progress'
-                : 'Player is stopped'),
-          ]),
-        ),
-      ),
-    );
-  }
   Widget chatBox() {
     return Container(
       margin: const EdgeInsets.only(right: 72.0, left: 9.0, bottom: 16.0),
@@ -489,13 +456,13 @@ class _BottomInputState extends State<BottomInput>
                           margin: const EdgeInsets.all(3),
                           padding: const EdgeInsets.all(3),
                           height: 50,
-                          width: 220,
+                          width: 240,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: Color(0xfffbbec5),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(4.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Row(children: [
                               CircleAvatar(
                                 foregroundColor: Theme
@@ -508,19 +475,17 @@ class _BottomInputState extends State<BottomInput>
                               SizedBox(
                                 width: 6,
                               ),
-                              Container(
-                                child: Icon(
-                                  _mPlayer.isPlaying ? Icons
-                                      .play_arrow_rounded : Icons.play_arrow_rounded,
-                                  color: Colors.black,
-                                ),
+                              Icon(
+                                _mPlayer.isPlaying ? Icons
+                                    .pause : Icons.play_arrow_rounded,
+                                color: Color(0xff0e2546),
                               ),
                               SizedBox(
-                                width: 6,
+                                width: 20,
                               ),
                               Text(_mPlayer.isPlaying
                                   ? 'Playback in progress'
-                                  : 'Playback in progress'),
+                                  : 'Player not supported'),
                             ]),
                           ),
                         ),
@@ -574,8 +539,9 @@ class _BottomInputState extends State<BottomInput>
 
               onLongPressStart: (_) {
                 HapticFeedback.mediumImpact();
-                _updateSize();
                 setState(() {
+                  count++;
+                  print(count);
                   isRecording = true;
                 });
                 if (_mRecorder.isStopped) {
@@ -597,14 +563,11 @@ class _BottomInputState extends State<BottomInput>
 
               onLongPressEnd: (_) {
                 HapticFeedback.lightImpact();
-                _updateSize();
+
                 if (_mRecorder.isRecording && !longRecording) {
                   setState(() {
-                    count++;
-                    print(count);
                     shouldSend = true;
                   });
-                  getPlaybackFn();
                   stopRecorder();
                 }
                 _resetUi();
@@ -683,12 +646,8 @@ class _BottomInputState extends State<BottomInput>
                         child: IconButton(
                           onPressed: (){
                             setState(() {
-                              shouldSend = true;
                               count++;
                             });
-                            getPlaybackFn();
-                            _resetUi();
-                            _resetTimer();
                           },
 
                           icon: Icon(longRecording ? Icons.send : Icons.mic,
